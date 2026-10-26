@@ -411,7 +411,8 @@ body.pdf-mode *{animation:none !important;transition:none !important}
         <p class="hero-sub">Encuesta realizada a usuarios que participaron en la prueba de Producto del Año.</p>
         <dl class="facts">
           <div class="city-dates">
-            <div class="city-date"><dt>Periodo de respuestas</dt><dd id="factDates">–</dd></div>
+            <div class="city-date"><dt>Barcelona</dt><dd>7 y 8 de octubre de 2026</dd></div>
+            <div class="city-date"><dt>Madrid</dt><dd>20 y 21 de octubre de 2026</dd></div>
           </div>
           <div><dt>Respuestas</dt><dd id="factN">–</dd></div>
           <div><dt>Comprarían el producto</dt><dd id="factBuy">–</dd></div>
@@ -1182,7 +1183,6 @@ function renderHero() {
   const si = all.filter(r => r.compra === 'Sí').length, n = all.filter(r => r.compra).length;
   $('#factN').textContent = sel.length + (sel.length !== state.rows.length ? ` de ${state.rows.length}` : '');
   $('#factBuy').textContent = pct(si, n);
-  $('#factDates').textContent = dateRange(state.rows) || '–';
   $$('[data-seal-n]').forEach(el => el.textContent = sel.length);
   const nSi = all.filter(r => r.compra === 'Sí').length, nNo = all.filter(r => r.compra === 'No').length;
   $('#compraNote').textContent = `${pct(nSi, nSi + nNo)} responde que sí y ${pct(nNo, nSi + nNo)} que no.`;
