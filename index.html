@@ -801,7 +801,7 @@ function buildRows(matrix) {
     const g = norm(get('gen')); o.gen = /^(f|mujer)/.test(g) ? 'Mujer' : /^(m|hombre)/.test(g) ? 'Hombre' : null;
     const age = parseInt(get('age'), 10);
     o.ageB = isNaN(age) ? null : (CONFIG.ageBands.find(([, lo, hi]) => age >= lo && age <= hi) || [null])[0];
-    if (CONFIG.attrs.some(a => o[a.k] != null) || o.compra) rows.push(o);
+    if (Object.values(idx).some(i => String(r[i] ?? '').trim())) rows.push(o);
   });
   if (!rows.length) throw new Error('No hay respuestas válidas');
   return rows;
@@ -1113,9 +1113,10 @@ function initLeaderboard() {
   });
 }
 
+const UNAVAILABLE_PRODUCT_RESPONSE = /\bno\s+(?:(?:lo|la)\s+)?recib(?:i|io|ieron|imos|ido|ia|ian)\b|\bno\s+(?:(?:me\s+)?(?:lo\s+)?)?(?:han|he|hemos)\s+recibid[oa]s?\b|\bno\s+(?:estaba|habia)\s+(?:el\s+)?producto\b|\bno\s+(?:estaba|habia)\s+en\s+el\s+lote\b/;
 function vbRows() {
   const q = norm(state.vb.q).trim();
-  return rowsSel().filter(r => r.porque)
+  return rowsSel().filter(r => r.porque && !UNAVAILABLE_PRODUCT_RESPONSE.test(norm(r.porque)))
     .filter(r => state.vb.sent === 'all' || r.sent === state.vb.sent)
     .filter(r => !state.vb.theme || (state.vb.theme.mode === 'grouped' ? r.themes.includes(state.vb.theme.v) : r.cat === state.vb.theme.v))
     .filter(r => !q || norm(r.porque).includes(q) || r.themes.some(t => norm(t).includes(q)));
@@ -1127,7 +1128,7 @@ function highlight(text) {
   return out + esc(text.slice(i));
 }
 function renderVerbatims() {
-  const list = vbRows(), total = rowsSel().filter(r => r.porque).length;
+  const list = vbRows(), total = rowsSel().length;
   const shown = list.slice(0, state.vb.limit);
   const cls = { Positivo: 'pos', Neutro: 'neu', Negativo: 'neg' };
   $('#vbList').innerHTML = shown.length ? shown.map(r => `
@@ -1141,7 +1142,7 @@ function renderVerbatims() {
       </div>
     </article>`).join('')
     : `<div class="empty">Ninguna opinión coincide con estos filtros. Prueba con otra palabra o quita el filtro de tema.</div>`;
-  $('#vbCount').textContent = `Mostrando ${shown.length} de ${list.length} opiniones` + (list.length !== total ? ` (${total} en total con los filtros generales)` : '');
+  $('#vbCount').textContent = `Mostrando ${shown.length} de ${list.length} opiniones` + (list.length !== total ? ` (${total} respuestas en total con los filtros generales)` : '');
   $('#vbMore').hidden = list.length <= state.vb.limit;
 }
 function setVbSent(v, scroll) {
